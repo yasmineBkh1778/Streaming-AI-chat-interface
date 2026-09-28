@@ -1,61 +1,116 @@
-# Chat en streaming — installation
+# Streaming AI Chat Interface
 
-## 1. Dépendances
+Un projet Next.js qui affiche un chat IA en streaming avec Groq, en utilisant l’API `@ai-sdk/react` et `streamText`.
+
+## Prérequis
+
+Avant de commencer, vérifie que tu as installé :
+
+- Node.js 18+
+- npm ou pnpm ou yarn
+- un compte Groq avec une clé API active
+
+## 1. Cloner le projet
 
 ```bash
-npm install ai @ai-sdk/react @ai-sdk/groq react-markdown remark-gfm
-```
-
-## 2. Clé API Groq (gratuite)
-
-1. Créez un compte sur https://console.groq.com (aucune carte bancaire requise)
-2. Générez une clé API
-3. Créez un fichier `.env.local` à la racine du projet :
+git clone https://github.com/yasmineBkh1778/Streaming-AI-chat-interface
 
 ```
-GROQ_API_KEY=votre_clé_ici
+
+## 2. Installer les dépendances
+
+```bash
+npm install
 ```
 
-Le SDK `@ai-sdk/groq` lit automatiquement cette variable côté serveur.
-Elle n'est jamais transmise au navigateur.
+## 3. Créer le fichier d’environnement
 
-## 3. Où placer les fichiers
+Crée un fichier `.env.local` à la racine du projet :
 
-Copiez l'arborescence telle quelle dans un projet Next.js (App Router) :
-
-```
-lib/ai/config.ts              → config modèle + system prompt
-app/api/chat/route.ts         → route handler (streamText)
-app/chat/page.tsx             → page qui affiche le chat
-components/chat/chat-window.tsx        → composant principal (useChat)
-components/chat/streaming-markdown.tsx → rendu markdown sécurisé
+```bash
+GROQ_API_KEY=votre_cle_api_groq
 ```
 
-## 4. Lancer
+Important :
+- cette clé est lue côté serveur uniquement
+- elle ne doit jamais être exposée dans le navigateur
+
+## 4. Lancer le projet localement
 
 ```bash
 npm run dev
 ```
 
-Puis ouvrez `http://localhost:3000/chat`.
+Ouvre ensuite :
 
-## 5. Changer de modèle plus tard
-
-Un seul fichier à toucher : `lib/ai/config.ts`. Exemple pour passer à
-Gemini :
-
-```typescript
-import { google } from '@ai-sdk/google';
-export const CHAT_MODEL = google('gemini-2.5-flash');
+```text
+http://localhost:3000/chat
 ```
 
-(nécessite `npm install @ai-sdk/google` et une clé `GOOGLE_GENERATIVE_AI_API_KEY`
-dans `.env.local`, obtenue gratuitement sur https://aistudio.google.com)
+## 5. Structure du projet
 
-## Checklist vs. les critères d'évaluation du brief
+```text
+streaming-chat-capstone/
+├── app/
+│   ├── api/
+│   │   └── chat/
+│   │       └── route.ts
+│   ├── chat/
+│   │   └── page.tsx
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── globals.css
+├── components/
+│   └── chat/
+│       ├── chat-window.tsx
+│       └── streaming-markdown.tsx
+├── lib/
+│   └── ai/
+│       └── config.ts
+├── .env.local
+├── package.json
+├── next.config.ts
+├── tsconfig.json
+├── README.md
+└── ...
+```
 
-- [x] Réponses en streaming token par token → `streamText` + `useChat`
-- [x] Stop mid-stream sans casser l'état → bouton `stop()`, message partiel conservé
-- [x] État de conversation sur plusieurs tours → `useChat` gère l'historique
-- [x] Clé API côté serveur uniquement → lue dans `route.ts`, jamais exposée
-- [x] Utilisable au format mobile → `100dvh`, `env(safe-area-inset-bottom)`, textarea adaptative
+## 6. Changer le modèle Groq
+
+Le modèle utilisé est défini dans :
+
+```ts
+lib/ai/config.ts
+```
+
+Exemple :
+
+```ts
+export const CHAT_MODEL = groq('openai/gpt-oss-20b');
+```
+
+Tu peux remplacer le nom du modèle par un autre modèle autorisé par ton compte Groq.
+
+
+## 7. Fonctionnalités
+
+- Streaming de réponses en temps réel
+- affichage Markdown dans le chat
+- bouton Stop pour interrompre la génération
+- interface responsive mobile
+- gestion de l’historique de conversation
+
+## 8 Bonnes pratiques
+
+- ne jamais committer le fichier `.env.local`
+- vérifier les limites de modèle sur la console Groq
+- utiliser un modèle disponible pour ton organisation
+
+## 9. Checklist du projet
+
+- [x] Chat streaming token par token
+- [x] API côté serveur uniquement
+- [x] Gestion de la conversation
+- [x] Support Markdown
+- [x] Interface responsive
+- [x] Compatible avec Vercel
