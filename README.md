@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chat en streaming — installation
 
-## Getting Started
+## 1. Dépendances
 
-First, run the development server:
+```bash
+npm install ai @ai-sdk/react @ai-sdk/groq react-markdown remark-gfm
+```
+
+## 2. Clé API Groq (gratuite)
+
+1. Créez un compte sur https://console.groq.com (aucune carte bancaire requise)
+2. Générez une clé API
+3. Créez un fichier `.env.local` à la racine du projet :
+
+```
+GROQ_API_KEY=votre_clé_ici
+```
+
+Le SDK `@ai-sdk/groq` lit automatiquement cette variable côté serveur.
+Elle n'est jamais transmise au navigateur.
+
+## 3. Où placer les fichiers
+
+Copiez l'arborescence telle quelle dans un projet Next.js (App Router) :
+
+```
+lib/ai/config.ts              → config modèle + system prompt
+app/api/chat/route.ts         → route handler (streamText)
+app/chat/page.tsx             → page qui affiche le chat
+components/chat/chat-window.tsx        → composant principal (useChat)
+components/chat/streaming-markdown.tsx → rendu markdown sécurisé
+```
+
+## 4. Lancer
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Puis ouvrez `http://localhost:3000/chat`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 5. Changer de modèle plus tard
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Un seul fichier à toucher : `lib/ai/config.ts`. Exemple pour passer à
+Gemini :
 
-## Learn More
+```typescript
+import { google } from '@ai-sdk/google';
+export const CHAT_MODEL = google('gemini-2.5-flash');
+```
 
-To learn more about Next.js, take a look at the following resources:
+(nécessite `npm install @ai-sdk/google` et une clé `GOOGLE_GENERATIVE_AI_API_KEY`
+dans `.env.local`, obtenue gratuitement sur https://aistudio.google.com)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Checklist vs. les critères d'évaluation du brief
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [x] Réponses en streaming token par token → `streamText` + `useChat`
+- [x] Stop mid-stream sans casser l'état → bouton `stop()`, message partiel conservé
+- [x] État de conversation sur plusieurs tours → `useChat` gère l'historique
+- [x] Clé API côté serveur uniquement → lue dans `route.ts`, jamais exposée
+- [x] Utilisable au format mobile → `100dvh`, `env(safe-area-inset-bottom)`, textarea adaptative
